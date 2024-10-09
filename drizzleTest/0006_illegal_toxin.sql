@@ -1,0 +1,1 @@
+ALTER TABLE "registrations" ADD COLUMN "nfc_tag_code" text DEFAULT '';

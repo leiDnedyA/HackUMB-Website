@@ -8,7 +8,8 @@ export const registrations = pgTable(
     semester: text("semester").notNull(),
     team: text("team").notNull(),
     createdAt: timestamp("created_at").defaultNow(),
-    checkedin: boolean("checkedin").default(false).notNull()
+    checkedin: boolean("checkedin").default(false).notNull(),
+    nfcTagCode: text("nfc_tag_code").default("")
   },
   (registrations) => {
     return {

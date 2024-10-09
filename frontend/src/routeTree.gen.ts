@@ -14,9 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedRegistrationImport } from './routes/_authenticated/registration'
-import { Route as AuthenticatedExpensesImport } from './routes/_authenticated/expenses'
 import { Route as AuthenticatedDashboardImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedCreateExpenseImport } from './routes/_authenticated/create-expense'
 import { Route as AuthenticatedBadgeImport } from './routes/_authenticated/badge'
 import { Route as AuthenticatedAnnouncementsImport } from './routes/_authenticated/announcements'
 
@@ -37,22 +35,10 @@ const AuthenticatedRegistrationRoute = AuthenticatedRegistrationImport.update({
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
-const AuthenticatedExpensesRoute = AuthenticatedExpensesImport.update({
-  path: '/expenses',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-
 const AuthenticatedDashboardRoute = AuthenticatedDashboardImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-
-const AuthenticatedCreateExpenseRoute = AuthenticatedCreateExpenseImport.update(
-  {
-    path: '/create-expense',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any,
-)
 
 const AuthenticatedBadgeRoute = AuthenticatedBadgeImport.update({
   path: '/badge',
@@ -98,25 +84,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBadgeImport
       parentRoute: typeof AuthenticatedImport
     }
-    '/_authenticated/create-expense': {
-      id: '/_authenticated/create-expense'
-      path: '/create-expense'
-      fullPath: '/create-expense'
-      preLoaderRoute: typeof AuthenticatedCreateExpenseImport
-      parentRoute: typeof AuthenticatedImport
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardImport
-      parentRoute: typeof AuthenticatedImport
-    }
-    '/_authenticated/expenses': {
-      id: '/_authenticated/expenses'
-      path: '/expenses'
-      fullPath: '/expenses'
-      preLoaderRoute: typeof AuthenticatedExpensesImport
       parentRoute: typeof AuthenticatedImport
     }
     '/_authenticated/registration': {
@@ -131,16 +103,128 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren({
-  IndexRoute,
-  AuthenticatedRoute: AuthenticatedRoute.addChildren({
-    AuthenticatedAnnouncementsRoute,
-    AuthenticatedBadgeRoute,
-    AuthenticatedCreateExpenseRoute,
-    AuthenticatedDashboardRoute,
-    AuthenticatedExpensesRoute,
-    AuthenticatedRegistrationRoute,
-  }),
-})
+interface AuthenticatedRouteChildren {
+  AuthenticatedAnnouncementsRoute: typeof AuthenticatedAnnouncementsRoute
+  AuthenticatedBadgeRoute: typeof AuthenticatedBadgeRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedRegistrationRoute: typeof AuthenticatedRegistrationRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAnnouncementsRoute: AuthenticatedAnnouncementsRoute,
+  AuthenticatedBadgeRoute: AuthenticatedBadgeRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedRegistrationRoute: AuthenticatedRegistrationRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/announcements': typeof AuthenticatedAnnouncementsRoute
+  '/badge': typeof AuthenticatedBadgeRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/registration': typeof AuthenticatedRegistrationRoute
+}
+
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/announcements': typeof AuthenticatedAnnouncementsRoute
+  '/badge': typeof AuthenticatedBadgeRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/registration': typeof AuthenticatedRegistrationRoute
+}
+
+export interface FileRoutesById {
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/announcements': typeof AuthenticatedAnnouncementsRoute
+  '/_authenticated/badge': typeof AuthenticatedBadgeRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/registration': typeof AuthenticatedRegistrationRoute
+}
+
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | ''
+    | '/announcements'
+    | '/badge'
+    | '/dashboard'
+    | '/registration'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '' | '/announcements' | '/badge' | '/dashboard' | '/registration'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/announcements'
+    | '/_authenticated/badge'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/registration'
+  fileRoutesById: FileRoutesById
+}
+
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+}
+
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* prettier-ignore-end */
+
+/* ROUTE_MANIFEST_START
+{
+  "routes": {
+    "__root__": {
+      "filePath": "__root.tsx",
+      "children": [
+        "/",
+        "/_authenticated"
+      ]
+    },
+    "/": {
+      "filePath": "index.tsx"
+    },
+    "/_authenticated": {
+      "filePath": "_authenticated.tsx",
+      "children": [
+        "/_authenticated/announcements",
+        "/_authenticated/badge",
+        "/_authenticated/dashboard",
+        "/_authenticated/registration"
+      ]
+    },
+    "/_authenticated/announcements": {
+      "filePath": "_authenticated/announcements.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/badge": {
+      "filePath": "_authenticated/badge.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/dashboard": {
+      "filePath": "_authenticated/dashboard.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/registration": {
+      "filePath": "_authenticated/registration.tsx",
+      "parent": "/_authenticated"
+    }
+  }
+}
+ROUTE_MANIFEST_END */

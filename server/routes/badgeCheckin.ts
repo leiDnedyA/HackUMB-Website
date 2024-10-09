@@ -11,9 +11,9 @@ export const badgeCheckinRoute = new Hono()
   .post("/", async (c) => {
     const formData = await c.req.formData();
     const secret = formData.get("secret");
-    const userId = formData.get("userId");
+    const nfcTagCode = formData.get("nfcTagCode");
 
-    console.log(formData, secret, userId)
+    console.log(formData, nfcTagCode);
 
     const realSecret = process.env.BADGE_CHECKIN_SECRET;
 
@@ -21,19 +21,21 @@ export const badgeCheckinRoute = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    if (!userId) {
-      return c.json({ error: "Missing form parameter: userId" }, 400);
+    if (!nfcTagCode) {
+      return c.json({ error: "Missing form parameter: nfcTagCode" }, 400);
     }
 
-    const user = await db
+    const users = await db
       .select()
       .from(registrationTable)
-      .where(eq(registrationTable.userId, userId))
+      .where(eq(registrationTable.nfcTagCode, nfcTagCode))
       .limit(1);
 
-    if (!user.length) {
+    if (!users.length) {
       return c.json({ error: "User not found" }, 404);
     }
+
+    const userId = users[0].userId;
 
     const result = await db.update(registrationTable).set({ checkedin: true }).where(eq(registrationTable.userId, userId)).returning()
 

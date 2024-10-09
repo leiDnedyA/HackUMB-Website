@@ -4,6 +4,9 @@ import { kindeClient } from '../kinde'
 import { sessionManager } from '../kinde'
 
 import { getUser } from '../kinde'
+import { registrations as registrationTable } from "../db/schema/registrations"
+import { db } from "../db"
+import { eq, desc } from "drizzle-orm";
 
 export const authRoute = new Hono()
 
@@ -37,6 +40,10 @@ export const authRoute = new Hono()
   })
   .get("/me", getUser, async (c) => {
     const user = c.get("user");
+
+    const registration = await db.select().from(registrationTable).where(eq(registrationTable.userId, user.id));
+    console.log(registration)
+
     return c.json({user});
   })
   .get("/role", getUser, async (c) => {
